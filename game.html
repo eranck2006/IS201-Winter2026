@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Wordle</title>
+<a href="fromScratch.html" style="color:lightpink;">Scratch</a>
+<br>
+<a href="index.html" style="color:lightpink;">Resume</a>
+</head>
+
+<body style="background:#cfe9ff; font-family:'Arial Rounded MT Bold', Arial; text-align:center; padding:20px;">
+    <div style="
+    border: 8px dotted #ffb3c6;
+    padding:20px;
+">
+    <div style="
+        border: 6px double #fff1a8;
+        padding:20px;
+    ">
+<!-- HEADER / LOGO -->
+<div style="
+    background:linear-gradient(135deg, #ffb3c6, #fff1a8);
+    padding:20px;
+    border-radius:20px;
+    width:60%;
+    margin:0 auto 20px auto;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+">
+    <h1 style="margin:0; font-size:48px; color:#ffffff; text-shadow:2px 2px #ff9bb5;">
+        🌸 Wordle 🌼
+    </h1>
+</div>
+
+<p style="color:#555; font-size:18px;">Guess the 5‑letter word! You have 5 tries.</p>
+
+<!-- GAME BOARD -->
+<div id="board" style="width:300px; margin:20px auto;"></div>
+
+<!-- INPUT -->
+<input id="guessInput" maxlength="5"
+       style="padding:10px; font-size:18px; width:200px; text-transform:uppercase; border-radius:10px; border:2px solid #ffb3c6;">
+<button onclick="submitGuess()"
+        style="padding:10px 20px; font-size:18px; background:#ffd6a5; border:none; cursor:pointer; border-radius:10px;">
+        Guess
+</button>
+
+<p id="message" style="font-size:22px; margin-top:20px; font-weight:bold;"></p>
+
+<!-- PLAY AGAIN BUTTON -->
+<button id="playAgain" onclick="restartGame()"
+        style="display:none; margin-top:20px; padding:12px 25px; font-size:20px; background:#ffb3c6; border:none; border-radius:12px; cursor:pointer;">
+        Play Again 💕
+</button>
+
+<!-- CONFETTI CANVAS -->
+<canvas id="confettiCanvas" style="position:fixed; top:0; left:0; pointer-events:none;"></canvas>
+
+<script>
+// ----- GAME SETUP -----
+let answer = "APPLE"; // Change word here
+let attempts = 0;
+const maxAttempts = 5;
+
+const board = document.getElementById("board");
+
+// Create board rows
+for (let i = 0; i < maxAttempts; i++) {
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.justifyContent = "center";
+    row.style.marginBottom = "5px";
+
+    for (let j = 0; j < 5; j++) {
+        const box = document.createElement("div");
+        box.style.width = "50px";
+        box.style.height = "50px";
+        box.style.border = "2px solid #ffb3c6";
+        box.style.margin = "3px";
+        box.style.fontSize = "30px";
+        box.style.display = "flex";
+        box.style.alignItems = "center";
+        box.style.justifyContent = "center";
+        box.style.background = "white";
+        box.style.borderRadius = "10px";
+        box.style.transition = "transform 0.2s ease, background 0.3s ease";
+        row.appendChild(box);
+    }
+    board.appendChild(row);
+}
+
+// ----- ANIMATIONS -----
+function popTile(tile) {
+    tile.style.transform = "scale(1.2)";
+    setTimeout(() => tile.style.transform = "scale(1)", 150);
+}
+
+function shakeRow(row) {
+    row.style.animation = "shake 0.4s";
+    setTimeout(() => row.style.animation = "", 400);
+}
+
+document.head.insertAdjacentHTML("beforeend", `
+<style>
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+</style>
+`);
+
+// ----- HANDLE GUESSES -----
+function submitGuess() {
+    const input = document.getElementById("guessInput");
+    let guess = input.value.toUpperCase();
+
+    if (guess.length !== 5) {
+        shakeRow(board.children[attempts]);
+        return;
+    }
+
+    if (attempts >= maxAttempts) return;
+
+    const row = board.children[attempts].children;
+
+    // Fill letters + pop animation
+    for (let i = 0; i < 5; i++) {
+        row[i].textContent = guess[i];
+        popTile(row[i]);
+    }
+
+    // Color feedback
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+            if (guess[i] === answer[i]) {
+                row[i].style.background = "#ffb3c6"; // pink
+            } else if (answer.includes(guess[i])) {
+                row[i].style.background = "#fff1a8"; // yellow
+            } else {
+                row[i].style.background = "#d3d3d3"; // gray
+            }
+        }, i * 200);
+    }
+
+    attempts++;
+
+    if (guess === answer) {
+        document.getElementById("message").textContent = "You got it! 🎉";
+        startConfetti();
+        document.getElementById("guessInput").disabled = true;
+        document.getElementById("playAgain").style.display = "inline-block";
+    } else if (attempts === maxAttempts) {
+        document.getElementById("message").textContent = "Out of guesses! The word was " + answer;
+        document.getElementById("playAgain").style.display = "inline-block";
+    }
+
+    input.value = "";
+}
+
+// ----- CONFETTI -----
+const canvas = document.getElementById("confettiCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let confettiPieces = [];
+
+function startConfetti() {
+    for (let i = 0; i < 200; i++) {
+        confettiPieces.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            size: Math.random() * 8 + 4,
+            color: ["#ffb3c6", "#ffd6a5", "#fff1a8"][Math.floor(Math.random()*3)],
+            speed: Math.random() * 3 + 2
+        });
+    }
+    requestAnimationFrame(updateConfetti);
+}
+
+function updateConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    confettiPieces.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+        p.y += p.speed;
+    });
+
+    confettiPieces = confettiPieces.filter(p => p.y < canvas.height);
+
+    if (confettiPieces.length > 0) {
+        requestAnimationFrame(updateConfetti);
+    }
+}
+
+// ----- RESTART GAME -----
+function restartGame() {
+    location.reload();
+}
+</script>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+.hero {
+  background-color: lightyellow;
+  padding:15px;
+  margin: 10px;
+  text-align: center;
+  border-bottom: 4px double lightpink;
+}
+h2 {
+    text-align: center;
+}
+body {
+  background-color: rgb(202, 235, 247);
+  margin: 10px;
+  border: 7px double lightyellow;
+  padding: 15px;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: darkslategray
+}
+html {
+  border: 5px dotted lightpink;
+  margin: 5px
+}
+a {
+  color: lightseagreen;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline
+}
+.card {
+  background: lightpink;
+  padding: 20px;
+  border: 2px solid white;
+  border-radius: 20px;
+  display: flex;            
+  gap: 20px;                
+  justify-content: center;  
+}
+.card img {
+  width: 20%;              
+  border-radius: 8px;      
+  object-fit: cover;        
+}
+.list-box {
+background: lightyellow;
+  border-left: 6px solid lightpink;
+  padding: 15px 20px;
+  margin: 20px 0;
+  columns: 2;
+  column-gap: 30px;
+  list-style-type: square;
+  text-align: center
+}
